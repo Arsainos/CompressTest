@@ -40,13 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\DataProviders\BlockDataProvider.cs" />
+    <Compile Include="IO\DataProviders\Block\FileBlock.cs" />
+    <Compile Include="IO\Interfaces\IBlockProvider.cs" />
+    <Compile Include="IO\Utils\ChechkTheFreeSpace.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Compression\" />
     <Folder Include="Data\" />
-    <Folder Include="IO\" />
     <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
