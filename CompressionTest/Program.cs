@@ -9,6 +9,21 @@ namespace CompressionTest
     {
         static void Main(string[] args)
         {
+            //var Tests = new Tests.Tests();
+
+            Console.WriteLine(Utils.CLI.Commands.Greeting);
+
+            string inputText = "";
+            while (inputText != "EXIT")
+            {
+                Console.WriteLine(Utils.CLI.Commands.CMDExecutables);
+
+                inputText = Console.ReadLine();
+
+                Utils.CLI.Commands.CheckTheInput(inputText);
+            }
         }
     }
+
+
 }
