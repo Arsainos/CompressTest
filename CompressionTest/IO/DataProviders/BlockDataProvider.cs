@@ -10,7 +10,7 @@ namespace CompressionTest.IO.DataProviders
     {
         public IBlockProvider _blockProvider { private get; set; }
 
-        public BlockDataProvider(int chunkSize, IBlockProvider blockProvider)
+        public BlockDataProvider(IBlockProvider blockProvider)
         {
             _blockProvider = blockProvider;
         }

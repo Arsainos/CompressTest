@@ -8,9 +8,9 @@ namespace CompressionTest.IO.Utils
     static class Utils
     {
         //TODO: make a check for free space 
-        public static bool CheckSpaceForDataLoading(int fileLength)
+        public static bool CheckSpaceForDataLoading(long fileLength)
         {
-            return false;
+            return true;
         }
     }
 }
