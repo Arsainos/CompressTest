@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compression\Algorithms\GZipCompression.cs" />
+    <Compile Include="Compression\Compression.cs" />
+    <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="IO\DataProviders\BlockDataProvider.cs" />
     <Compile Include="IO\DataProviders\Block\FileBlock.cs" />
     <Compile Include="IO\Interfaces\IBlockProvider.cs" />
@@ -48,7 +51,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Compression\" />
     <Folder Include="Data\" />
     <Folder Include="Utils\" />
   </ItemGroup>
