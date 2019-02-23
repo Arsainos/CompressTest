@@ -8,15 +8,15 @@ using System.IO;
 
 namespace CompressionTest.Compression.Algorithms
 {
-    class GZipCompression : ICompressionStrategy
+    class DeflateCompression : ICompressionStrategy
     {
         public byte[] Compress(byte[] input)
         {
             using (var memoryStream = new MemoryStream())
             {
-                using (var zipStream = new GZipStream(memoryStream, CompressionMode.Compress))
+                using (var deflateStream = new DeflateStream(memoryStream, CompressionMode.Compress))
                 {
-                    zipStream.Write(input, 0, input.Length);
+                    deflateStream.Write(input, 0, input.Length);
                 }
 
                 return memoryStream.ToArray();
@@ -25,7 +25,7 @@ namespace CompressionTest.Compression.Algorithms
 
         public byte[] Decompress(byte[] input)
         {
-            using (var zipStream = new GZipStream(new MemoryStream(input), CompressionMode.Decompress))
+            using (var zipStream = new DeflateStream(new MemoryStream(input), CompressionMode.Decompress))
             {
                 const int block = 4096;
                 byte[] buffer = new byte[block];

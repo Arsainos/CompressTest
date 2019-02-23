@@ -20,7 +20,7 @@ namespace CompressionTest.Compression
             return CompressionStrategy.Compress(input);
         }
 
-        public byte Decompress(byte[] input)
+        public byte[] Decompress(byte[] input)
         {
             return CompressionStrategy.Decompress(input);
         }

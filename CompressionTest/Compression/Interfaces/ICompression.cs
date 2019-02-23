@@ -8,6 +8,6 @@ namespace CompressionTest.Compression.Interfaces
     interface ICompressionStrategy
     {
         byte[] Compress(byte[] input);
-        byte Decompress(byte[] input);
+        byte[] Decompress(byte[] input);
     }
 }
