@@ -24,5 +24,6 @@ namespace CompressionTest.IO.Data
                 throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}",this.GetType()));
             }
         }
+
     }
 }

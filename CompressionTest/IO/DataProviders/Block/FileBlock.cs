@@ -36,6 +36,23 @@ namespace CompressionTest.IO.DataProviders.Block
             //
         }
 
+        public static string[] GetInputInfo()
+        {
+            return new List<string>
+            {
+                "[InputPath] - Путь до файла из которого будте производится считывание данных",
+                "[ChunkSuze] - Размер блока который необходимо будет считать" 
+            }.ToArray();
+        }
+
+        public static string[] GetOutputInfo()
+        {
+            return new List<string>
+            {
+                "[OutputPath] - Путь до файла в который будет производится запись данных"
+            }.ToArray();
+        }
+
         private FileStream CheckInputFileExist(string inputPath)
         {
             if(File.Exists(inputPath))

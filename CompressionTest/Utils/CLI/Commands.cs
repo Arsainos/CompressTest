@@ -11,12 +11,13 @@ namespace CompressionTest.Utils.CLI
                                        "= Добро пожаловать в программу сжатия данных. =\n\r" +
                                        "===============================================\n\r";
 
-        public const string CMDExecutables = "===============================\n\r"+
+        public const string CMDExecutables = "===============================\n\r" +
                                              " Перечень доступных команд:\n\r" +
                                              " EXIT - Выход\n\r" +
                                              " INFO - Информация\n\r" +
                                              " Compress - сжатие данных\n\r" +
-                                             " Decompress - расжатие данных\n\r";
+                                             " Decompress - расжатие данных\n\r" +
+                                             " Example - пример использования\n\r";
 
         const string exit = "\n\r Выход из программы.\n\r";
         const string info = "\n\r Информация о программе:\n\r" +
@@ -25,10 +26,13 @@ namespace CompressionTest.Utils.CLI
                             " Для более подробной информации напишите INFO compress/decompress [InputParameter]\n\r Например: INFO compress -a\n\r";
         const string info_a = " compress/decompress [Algorithm] - список доступных Алгоритмов компресии:\n\r";
         const string info_t = " compress/decompress [Input/Output Types] - список доступных источников:\n\r";
+        const string info_ipop = " compress/decompress [Input/Output Parameters] - Для типов данных доступны следующие параметры:\n\r";
         const string compress = "\n\r Запускаю механизм архивирование документа\n\r";
         const string decompress = "\n\r Запускаю механизм разархивирования документа\n\r";
 
-        private static readonly List<string> CMDs = new List<string>() { "EXIT","INFO","Compress","Decompress","TEST" };
+        const string example = @"compress -a Gzip -i File -ip C:\1.txt;1024 -o File -op D:\1.txt\n\r";
+
+        private static readonly List<string> CMDs = new List<string>() { "EXIT","INFO","Compress","Decompress","TEST","Example" };
         private static readonly List<string> InfoCMDs = new List<string>() { "-a", "-i", "-ip" ,"-o","-op"};
 
         public static string CheckTheInput(string input)
@@ -51,7 +55,7 @@ namespace CompressionTest.Utils.CLI
                             }
                             else if(splitted.Length>1 && (splitted[1] == "compress" || splitted[1] == "decompress"))
                             {
-                                if (splitted.Length > 2)
+                                if (splitted.Length >2)
                                 {
                                     if (InfoCMDs.Contains(splitted[2]))
                                     {
@@ -64,6 +68,22 @@ namespace CompressionTest.Utils.CLI
                                             case "-i":
                                             case "-o":
                                                 Console.WriteLine(StringAppender(info_t, IO.Utils.API.GetSourceTypes()));
+                                                break;
+
+                                            case "-ip":
+                                            case "-op":
+                                                Console.WriteLine(info_ipop);
+                                                foreach(var t in IO.Utils.API.GetSourceTypes())
+                                                {
+                                                    Console.WriteLine("============");
+                                                    Console.WriteLine(t);
+                                                    if (t=="File")
+                                                    {
+                                                        Console.WriteLine(StringAppender("Input Parameters\n\r",IO.Utils.API.GetBlockFileInfoInput()));
+                                                        Console.WriteLine(StringAppender("OutputParameters\n\r",IO.Utils.API.GetBlockFileInfoOutput()));
+                                                    }
+                                                    Console.WriteLine("============");
+                                                }
                                                 break;
                                         }
                                     }
@@ -91,6 +111,10 @@ namespace CompressionTest.Utils.CLI
                         case "TEST":
                             new Tests.Tests();
                             Console.WriteLine("\n\r");
+                            break;
+
+                        case "Example":
+                            Console.WriteLine(example);
                             break;
                     }
                     return input;

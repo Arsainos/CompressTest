@@ -16,5 +16,15 @@ namespace CompressionTest.IO.Utils
         {
             return Enum.GetNames(typeof(IO.Data.ProviderType));
         }
+
+        public static string[] GetBlockFileInfoInput()
+        {
+            return DataProviders.Block.FileBlock.GetInputInfo();
+        }
+
+        public static string[] GetBlockFileInfoOutput()
+        {
+            return DataProviders.Block.FileBlock.GetOutputInfo();
+        }
     }
 }
