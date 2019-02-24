@@ -26,15 +26,32 @@ namespace CompressionTest.Computation.Algorithm
 
         public static double[] checkCPUUsage()
         {
-            List<double> result;
+            int NumberOfLogicalCores = 0;
+            foreach (var item in new System.Management.ManagementObjectSearcher("Select * from Win32_ComputerSystem").Get())
+            {
+                NumberOfLogicalCores = Convert.ToInt32(item["NumberOfLogicalProcessors"]);
+            }
+
+            List<string> Cpus = new List<string>();
+            for(int i=0;i<NumberOfLogicalCores;i++)
+            {
+                Cpus.Add(i.ToString());
+            }
+
+            double[] CPUsIdles = new double[NumberOfLogicalCores];
+
             var searcher = new ManagementObjectSearcher(@"\root\CIMV2", "select * from Win32_PerfFormattedData_PerfOS_Processor");
 
             foreach(var t in searcher.Get())
             {
                 var res = t.Properties.Cast<PropertyData>().ToDictionary(p => p.Name, p => p.Value);
+                if(Cpus.Contains(res["Name"].ToString()))
+                {
+                    CPUsIdles[Convert.ToInt32(res["Name"])] = Convert.ToDouble(res["PercentIdleTime"]);
+                }
             }
 
-            return null;
+            return CPUsIdles;
         }
 
         public static double checkDiskUsage(string diskName)
