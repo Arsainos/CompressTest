@@ -8,7 +8,7 @@ namespace CompressionTest.IO
 {
     static class IOFabricMethod<T>
     {
-        public static T Create(DataSource source, string[] payload)
+        public static T Create(DataSource source, DirectionType direction, string[] payload)
         {
             if(typeof(T) == typeof(DataProviders.BlockDataProvider))
             {
@@ -16,7 +16,7 @@ namespace CompressionTest.IO
                 switch (source)
                 {
                     case DataSource.File:
-                        object args = new DataProviders.Block.FileBlock(payload);
+                        object args = new DataProviders.Block.FileBlock(payload, direction);
                         return (T)Activator.CreateInstance(typeof(T), args);
                 }
             }

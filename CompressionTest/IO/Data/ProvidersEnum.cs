@@ -14,4 +14,11 @@ namespace CompressionTest.IO.Data
     {
         Block = 0
     }
+
+    public enum DirectionType : int
+    {
+        In = 0,
+        Out = 1,
+        InOut = 2
+    }
 }

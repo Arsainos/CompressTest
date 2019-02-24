@@ -9,8 +9,6 @@ namespace CompressionTest
     {
         static void Main(string[] args)
         {
-            //var Tests = new Tests.Tests();
-
             Console.WriteLine(Utils.CLI.Commands.Greeting);
 
             string inputText = "";

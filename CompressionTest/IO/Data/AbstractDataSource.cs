@@ -17,12 +17,27 @@ namespace CompressionTest.IO.Data
             //
         }
 
-        public virtual void InputValidation(string[] payload)
+        private void BasicValidation(string[] payload)
         {
-            if(payload==null || payload.Length==0)
+            if (payload == null || payload.Length == 0)
             {
-                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}",this.GetType()));
+                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
             }
+        }
+
+        public virtual void InputDirectionValidation(string[] payload)
+        {
+            BasicValidation(payload);
+        }
+
+        public virtual void OutputDirectionValidation(string[] payload)
+        {
+            BasicValidation(payload);
+        }
+
+        public virtual void InOutDirectionValidation(string[] payload)
+        {
+            BasicValidation(payload);
         }
 
     }

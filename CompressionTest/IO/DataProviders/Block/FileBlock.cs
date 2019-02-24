@@ -13,22 +13,49 @@ namespace CompressionTest.IO.DataProviders.Block
         protected FileStream _outputStream;
         protected int _chunckSize;
         protected long _fileSize;
-        
+        protected FileInfo _fileInfo;
 
-        public FileBlock(string[] payload) : base(payload)
+        public FileBlock(string[] payload,Data.DirectionType directionType) : base(payload)
         {
-            InputValidation(payload);
+            switch(directionType)
+            {
+                case Data.DirectionType.In:
+                    InputDirectionValidation(payload);
+                    _inputStream = CheckInputFileExist(payload[0]);
+                    _chunckSize = Convert.ToInt32(payload[1]);
+                    _fileInfo = new FileInfo(payload[0]);
+                    _fileSize = _fileInfo.Length;
+                    break;
 
-            _inputStream = CheckInputFileExist(payload[0]);
-            _outputStream = CheckOutputFileExist(payload[1]);
-            _chunckSize = Convert.ToInt32(payload[2]);
-            var fileInfo = new FileInfo(payload[0]);
-            _fileSize = fileInfo.Length;
+                case Data.DirectionType.Out:
+                    OutputDirectionValidation(payload);
+                    _outputStream = CheckOutputFileExist(payload[0]);
+                    break;
+
+                case Data.DirectionType.InOut:
+                    InOutDirectionValidation(payload);
+                    _inputStream = CheckInputFileExist(payload[0]);
+                    _outputStream = CheckOutputFileExist(payload[1]);
+                    _chunckSize = Convert.ToInt32(payload[2]);
+                    _fileInfo = new FileInfo(payload[0]);
+                    _fileSize = _fileInfo.Length;
+                    break;
+            }
         }
 
-        public override void InputValidation(string[] payload)
+        public override void InputDirectionValidation(string[] payload)
         {
-            base.InputValidation(payload);
+            base.InputDirectionValidation(payload);
+        }
+
+        public override void OutputDirectionValidation(string[] payload)
+        {
+            base.OutputDirectionValidation(payload);
+        }
+
+        public override void InOutDirectionValidation(string[] payload)
+        {
+            base.InOutDirectionValidation(payload);
         }
 
         public override void Dispose()

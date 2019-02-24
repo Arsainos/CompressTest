@@ -43,27 +43,37 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compression\Algorithms\DeflateCompression.cs" />
     <Compile Include="Compression\Algorithms\GZipCompression.cs" />
     <Compile Include="Compression\Compression.cs" />
+    <Compile Include="Compression\CompressionFabricMethod.cs" />
+    <Compile Include="Compression\Data\CompressionEnums.cs" />
     <Compile Include="Compression\Interfaces\ICompression.cs" />
+    <Compile Include="Compression\Utils\API.cs" />
+    <Compile Include="Computation\Algorithm\Compute.cs" />
+    <Compile Include="Computation\Algorithm\ResourceCheck.cs" />
     <Compile Include="IO\DataProviders\BlockDataProvider.cs" />
     <Compile Include="IO\DataProviders\Block\FileBlock.cs" />
+    <Compile Include="IO\Data\AbstractDataProvider.cs" />
+    <Compile Include="IO\Data\AbstractDataSource.cs" />
+    <Compile Include="IO\Data\ProvidersEnum.cs" />
     <Compile Include="IO\Interfaces\IBlockProvider.cs" />
+    <Compile Include="IO\IOFabricMethod.cs" />
+    <Compile Include="IO\Utils\API.cs" />
     <Compile Include="IO\Utils\ChechkTheFreeSpace.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Tests.cs" />
     <Compile Include="Utils\CLI\Commands.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
