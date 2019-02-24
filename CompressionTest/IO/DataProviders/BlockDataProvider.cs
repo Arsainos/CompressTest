@@ -6,13 +6,24 @@ using CompressionTest.IO.Interfaces;
 
 namespace CompressionTest.IO.DataProviders
 {
-    class BlockDataProvider : IBlockProvider
+    class BlockDataProvider : IO.Data.AbstractDataProvider, IBlockProvider
     {
         public IBlockProvider _blockProvider { private get; set; }
 
-        public BlockDataProvider(IBlockProvider blockProvider)
+        public BlockDataProvider(object underlayingStructure) : base(underlayingStructure)
         {
-            _blockProvider = blockProvider;
+            objectValidation<IBlockProvider>(underlayingStructure);
+            _blockProvider = (IBlockProvider)underlayingStructure;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+        }
+
+        public override void objectValidation<T>(object uderlayingStructure)
+        {
+            base.objectValidation<T>(uderlayingStructure);
         }
 
         public byte[] ReadAll()

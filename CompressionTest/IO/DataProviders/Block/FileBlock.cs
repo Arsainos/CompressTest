@@ -7,7 +7,7 @@ using System.IO;
 
 namespace CompressionTest.IO.DataProviders.Block
 {
-    class FileBlock : IBlockProvider
+    class FileBlock : Data.AbstractDataSource, IBlockProvider
     {
         protected FileStream _inputStream;
         protected FileStream _outputStream;
@@ -15,13 +15,25 @@ namespace CompressionTest.IO.DataProviders.Block
         protected long _fileSize;
         
 
-        public FileBlock(string inputPath, string outputPath, int chunckSize)
+        public FileBlock(string[] payload) : base(payload)
         {
-            _inputStream = CheckInputFileExist(inputPath);
-            _outputStream = CheckOutputFileExist(outputPath);
-            _chunckSize = chunckSize;
-            var fileInfo = new FileInfo(inputPath);
+            InputValidation(payload);
+
+            _inputStream = CheckInputFileExist(payload[0]);
+            _outputStream = CheckOutputFileExist(payload[1]);
+            _chunckSize = Convert.ToInt32(payload[2]);
+            var fileInfo = new FileInfo(payload[0]);
             _fileSize = fileInfo.Length;
+        }
+
+        public override void InputValidation(string[] payload)
+        {
+            base.InputValidation(payload);
+        }
+
+        public override void Dispose()
+        {
+            //
         }
 
         private FileStream CheckInputFileExist(string inputPath)
