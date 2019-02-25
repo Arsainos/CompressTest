@@ -7,17 +7,10 @@ namespace CompressionTest.Computation.Algorithm
 {
     static class StrategyChooser
     {
-        public static Computation.Enums.ComputationType FindMostRelevantComponent(List<double[]> inputData,
-            Func<List<double[]>,Computation.Enums.ComputationType> Algorithm)
+        public static Data.Structures.StrategyResult FindMostRelevantComponent(object[] inputData,
+            Func<object[], Data.Structures.StrategyResult> Algorithm)
         {
-            if(inputData.Count>0)
-            {
-                return Algorithm(inputData);
-            }
-            else
-            {
-                throw new Exception("В функцию вычисления подходящего компонента не были переданы данные!");
-            }
+            return Algorithm(inputData);
         }
     }
 }
