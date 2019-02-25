@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CompressionTest.Computation
+namespace CompressionTest.Computation.Interfaces
 {
-    static class Compute
+    interface IComputation
     {
-
+        void Start();
     }
 }

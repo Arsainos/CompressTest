@@ -6,7 +6,7 @@ using System.Management;
 using System.IO;
 
 
-namespace CompressionTest.Computation.Algorithm
+namespace CompressionTest.Computation.Utils
 {
     static class ResourceCheck
     {
