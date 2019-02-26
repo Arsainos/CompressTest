@@ -8,7 +8,7 @@ namespace CompressionTest.IO.Data
     abstract class AbstractDataProvider
     {
         protected object _underlayingStructure;
-        public IDisposable disposable { private get; set; }
+        private IDisposable disposable { get; set; }
 
         public AbstractDataProvider(object underlayingStructure)
         {

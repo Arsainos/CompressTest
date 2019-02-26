@@ -11,5 +11,6 @@ namespace CompressionTest.IO.Interfaces
         byte[] ReadNext();
         void WriteAll(byte[] binary);
         void WriteNext(byte[] binary);
+        long GetObjectSize();
     }
 }

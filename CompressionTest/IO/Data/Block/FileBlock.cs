@@ -11,6 +11,8 @@ namespace CompressionTest.IO.DataProviders.Block
     {
         protected FileStream _inputStream;
         protected FileStream _outputStream;
+        protected BinaryReader binaryReader;
+        protected BinaryWriter binaryWriter;
         protected int _chunckSize;
         protected long _fileSize;
         protected FileInfo _fileInfo;
@@ -22,6 +24,7 @@ namespace CompressionTest.IO.DataProviders.Block
                 case Data.DirectionType.In:
                     InputDirectionValidation(payload);
                     _inputStream = CheckInputFileExist(payload[0]);
+                    binaryReader = new BinaryReader(_inputStream);
                     _chunckSize = Convert.ToInt32(payload[1]);
                     _fileInfo = new FileInfo(payload[0]);
                     _fileSize = _fileInfo.Length;
@@ -30,12 +33,15 @@ namespace CompressionTest.IO.DataProviders.Block
                 case Data.DirectionType.Out:
                     OutputDirectionValidation(payload);
                     _outputStream = CheckOutputFileExist(payload[0]);
+                    binaryWriter = new BinaryWriter(_outputStream);
                     break;
 
                 case Data.DirectionType.InOut:
                     InOutDirectionValidation(payload);
                     _inputStream = CheckInputFileExist(payload[0]);
                     _outputStream = CheckOutputFileExist(payload[1]);
+                    binaryReader = new BinaryReader(_inputStream);
+                    binaryWriter = new BinaryWriter(_outputStream);
                     _chunckSize = Convert.ToInt32(payload[2]);
                     _fileInfo = new FileInfo(payload[0]);
                     _fileSize = _fileInfo.Length;
@@ -63,12 +69,17 @@ namespace CompressionTest.IO.DataProviders.Block
             //
         }
 
+        public long GetObjectSize()
+        {
+            return _fileSize;
+        }
+
         public static string[] GetInputInfo()
         {
             return new List<string>
             {
                 "[InputPath] - Путь до файла из которого будте производится считывание данных",
-                "[ChunkSuze] - Размер блока который необходимо будет считать" 
+                "[ChunkSize] - Размер блока который необходимо будет считать" 
             }.ToArray();
         }
 
@@ -106,43 +117,24 @@ namespace CompressionTest.IO.DataProviders.Block
 
         public byte[] ReadAll()
         {
-            if (Utils.Utils.CheckSpaceForDataLoading(_fileSize))
-            {
-                using (var reader = new BinaryReader(_inputStream))
-                {
-                    return reader.ReadBytes((int)_fileSize);
-                }
-            }
-            else
-            {
-                throw new Exception("Не достаточно места в памяти для полной выгрузки файла в память!");
-            }
+            return binaryReader.ReadBytes((int)_fileSize);         
         }
 
         public byte[] ReadNext()
         {
-            using (var reader = new BinaryReader(_inputStream))
-            {
-                return reader.ReadBytes(_chunckSize);
-            }
+            return binaryReader.ReadBytes(_chunckSize);
         }
 
         public void WriteAll(byte[] binary)
         {
-            using (var writer = new BinaryWriter(_outputStream))
-            {
-                writer.Write(binary, 0, binary.Length);
-                writer.Flush();
-            }
+            binaryWriter.Write(binary, 0, binary.Length);
+            binaryWriter.Flush();
         }
 
         public void WriteNext(byte[] binary)
         {
-            using(var writer = new BinaryWriter(_outputStream))
-            {
-                writer.Write(binary, 0, binary.Length);
-                writer.Flush();
-            }
+            binaryWriter.Write(binary, 0, binary.Length);
+            binaryWriter.Flush();
         }
     }
 }
