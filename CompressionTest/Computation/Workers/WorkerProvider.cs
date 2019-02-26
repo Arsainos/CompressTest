@@ -18,5 +18,10 @@ namespace CompressionTest.Computation.Workers
         {
             ComputationStrategy.Start();
         }
+
+        public void Stop()
+        {
+            ComputationStrategy.Stop();
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace CompressionTest.Computation.Interfaces
     interface IComputation
     {
         void Start();
+        void Stop();
     }
 }

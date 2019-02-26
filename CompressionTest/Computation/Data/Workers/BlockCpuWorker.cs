@@ -11,5 +11,10 @@ namespace CompressionTest.Computation.Data.Workers
         {
             throw new NotImplementedException();
         }
+
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

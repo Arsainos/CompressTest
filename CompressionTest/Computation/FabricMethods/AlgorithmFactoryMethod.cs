@@ -7,7 +7,7 @@ namespace CompressionTest.Computation.FabricMethods
 {
     static class AlgorithmFactoryMethod
     {
-        public static Func<object[],Enums.ComputationType> GetFunc(Enums.Algorithms algorithm)
+        public static Func<object[],Data.Structures.StrategyResult> GetFunc(Enums.Algorithms algorithm)
         {
             switch(algorithm)
             {
