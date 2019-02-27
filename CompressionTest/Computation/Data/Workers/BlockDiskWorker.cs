@@ -11,9 +11,7 @@ namespace CompressionTest.Computation.Data.Workers
 {
     class BlockDiskWorker : Interfaces.IComputation
     {
-        public delegate void WorkerState();
-        public event WorkerState ReadComplete;
-        public event WorkerState WriteComplete;
+        AutoResetEvent waitHandler = new AutoResetEvent(false);
 
         protected class Utils
         {
@@ -62,7 +60,11 @@ namespace CompressionTest.Computation.Data.Workers
             this.writeQueue = new Queue<Data.ByteBlock>(queueCapacity);
             this.compression = compression;
 
-            _disk = new Disk(this.readLock, this.writeLock, this.input, this.Output, this.readQueue, this.writeQueue, queueCapacity, (int)this.fileChunks, this);
+            _disk = new Disk(this.readLock, this.writeLock, 
+                this.input, this.Output, 
+                this.readQueue, this.writeQueue, 
+                queueCapacity, (int)this.fileChunks, 
+                ref waitHandler);
 
             _cpu = new Cpu(this.readLock, this.writeQueue, this.writeQueue, this.readQueue, this.compression, (int)this.fileChunks);
 
@@ -78,6 +80,7 @@ namespace CompressionTest.Computation.Data.Workers
             {
                 _threads[i].Start();
             }
+            waitHandler.WaitOne();
         }
 
         public void Stop()
@@ -121,12 +124,18 @@ namespace CompressionTest.Computation.Data.Workers
             private IO.DataProviders.BlockDataProvider writeProvider;
             private int queueCapacity;
             private int chunksNumber;
-            public Disk(object readLock, object writeLock, BlockDataProvider readProvider, BlockDataProvider writeProvider, Queue<ByteBlock> readQueue, Queue<ByteBlock> writeQueue, int queueCapacity, int chunksNumber, BlockDiskWorker blockDisk) : base(readLock, writeLock,writeQueue,readQueue)
+            private AutoResetEvent waitHandle;
+            public Disk(object readLock, object writeLock,
+                BlockDataProvider readProvider, BlockDataProvider writeProvider, 
+                Queue<ByteBlock> readQueue, Queue<ByteBlock> writeQueue, 
+                int queueCapacity, int chunksNumber, 
+                ref AutoResetEvent resetEvent) : base(readLock, writeLock,writeQueue,readQueue)
             {
                 this.queueCapacity = queueCapacity;
                 this.chunksNumber = chunksNumber;
                 this.readProvider = readProvider;
                 this.writeProvider = writeProvider;
+                this.waitHandle = resetEvent;
             }
 
             public void StartRead()
@@ -143,7 +152,6 @@ namespace CompressionTest.Computation.Data.Workers
                             if (NextSlice.Length > 0)
                             {
                                 readQueue.Enqueue(new ByteBlock(NextSlice, chunkNumber));
-                                ChunkProccessed(chunkNumber);
                                 chunkNumber++;
                             }
                             else
@@ -157,12 +165,7 @@ namespace CompressionTest.Computation.Data.Workers
                         }
                     }
                 }
-                Console.WriteLine("\n\r[Output]: Чтение данных из файла завершено!");
-            }
-
-            private void ChunkProccessed(int currentChunk)
-            {
-                Console.WriteLine("\r{0}%   ",Convert.ToDouble((currentChunk/chunksNumber)));
+                Console.WriteLine("[Output]: Чтение данных из файла завершено!");
             }
 
             public void StartWrite()
@@ -183,7 +186,8 @@ namespace CompressionTest.Computation.Data.Workers
                         }
                     }
                 }
-                Console.WriteLine("\n\r[Output]: Запись данных в файл завершена!");
+                Console.WriteLine("[Output]: Запись данных в файл завершена!");
+                waitHandle.Set();
             }
 
             public override void CleanResources()

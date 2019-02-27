@@ -21,28 +21,34 @@ namespace CompressionTest.Tests
             List<String> IOPayload = new List<string>()
             {
                 @"C:\TestFolder\1.txt",
-                @"C:\TestFolder\2.txt",
-                "1024"
+                @"C:\TestFolder\1.txt.gz",
+                "4096"
             };
 
             blockDataProvider = IOFabricMethod<BlockDataProvider>.Create(DataSource.File, DirectionType.InOut, IOPayload.ToArray());
-            CheckFileCreation();
-            TryReadAllFileData();
-            CheckOutputFileTruncate();
-            TryWriteAllData();
+            //CheckFileCreation();
+            //TryReadAllFileData();
+            //CheckOutputFileTruncate();
+            //TryWriteAllData();
 
             compression = Compression.CompressionFabricMethod.Create(Compression.Data.CompressionAlgorithms.Gzip);
             TryCompressGZipData();
+            //TryCompressFile();
             TryDecompressGZipData();
+            //TryDecompressFile();
 
             TestDiskUsage();
             TestRamUsage();
             TestCPUusage();
+
+            TestChooseAlgorithm();
+
+            TestDiskStrategy();
         }
 
         public void CheckFileCreation()
         {
-            if(File.Exists(@"C:\TestFolder\2.txt"))
+            if (File.Exists(@"C:\TestFolder\2.txt"))
             {
                 Console.WriteLine(String.Format("Tests - [1]CheckFileCreation - true"));
                 return;
@@ -66,7 +72,7 @@ namespace CompressionTest.Tests
         {
             var info = new FileInfo(@"C:\TestFolder\2.txt").Length;
 
-            if(info == 0)
+            if (info == 0)
             {
                 Console.WriteLine(String.Format("Tests - [4]CheckOutputFileTruncate - true"));
                 return;
@@ -81,7 +87,7 @@ namespace CompressionTest.Tests
 
             List<byte> azaza = new List<byte>();
 
-            foreach(var t in test)
+            foreach (var t in test)
             {
                 azaza.Add((byte)t);
             }
@@ -90,7 +96,7 @@ namespace CompressionTest.Tests
 
             var info = new FileInfo(@"C:\TestFolder\2.txt").Length;
 
-            if(info > 0)
+            if (info > 0)
             {
                 Console.WriteLine(String.Format("Tests - [3]TryWriteAllData - true"));
                 return;
@@ -100,7 +106,7 @@ namespace CompressionTest.Tests
 
         public void TryReadNextChunkOfData()
         {
-            
+
         }
 
         public void TryWriteNextChunkOfData()
@@ -112,14 +118,23 @@ namespace CompressionTest.Tests
         {
             List<byte> defaultArray = new List<byte>();
 
-            foreach(var t in lorem)
+            foreach (var t in lorem)
             {
                 defaultArray.Add((byte)t);
             }
 
             byte[] resultArray = compression.Compress(defaultArray.ToArray());
 
-            Console.WriteLine(String.Format("Tests - [5]TryCompressGZipData - default:{0}, target:{1}",defaultArray.Count,resultArray.Length));
+            Console.WriteLine(String.Format("Tests - [5]TryCompressGZipData - default:{0}, target:{1}", defaultArray.Count, resultArray.Length));
+        }
+
+        public void TryCompressFile()
+        {
+            byte[] defaults = blockDataProvider.ReadAll();
+            byte[] Result = compression.Compress(defaults);
+
+            Console.WriteLine(String.Format("Tests - [5]TryCompressGZipData - default:{0}, target:{1}", defaults.Length, Result.Length));
+
         }
 
         public void TryDecompressGZipData()
@@ -138,19 +153,49 @@ namespace CompressionTest.Tests
             Console.WriteLine(String.Format("Tests - [6]TryCompressGZipData - default:{0}, target:{1}", compressed.Length, resultArray.Length));
         }
 
+        public void TryDecompressFile()
+        {
+            byte[] defaults = blockDataProvider.ReadAll();
+            byte[] compressed = compression.Compress(defaults);
+            byte[] resultArray = compression.Decompress(compressed);
+
+            Console.WriteLine(String.Format("Tests - [6]TryCompressGZipData - default:{0}, target:{1}", compressed.Length, resultArray.Length));
+
+        }
+
         public void TestDiskUsage()
         {
-            Console.WriteLine(Computation.Algorithm.ResourceCheck.checkDiskUsage("C"));
+            Console.WriteLine(String.Format("DiskIdle = {0}", Computation.Utils.ResourceCheck.checkDiskUsage("C")));
         }
 
         public void TestRamUsage()
         {
-            Console.WriteLine(Computation.Algorithm.ResourceCheck.checkRamSize());
+            Console.WriteLine(String.Format("RamAvaliable = {0}", Computation.Utils.ResourceCheck.checkRamSize()));
         }
 
         public void TestCPUusage()
         {
-            Console.WriteLine(Computation.Algorithm.ResourceCheck.checkCPUUsage());
+            var result = Computation.Utils.ResourceCheck.checkCPUUsage();
+            for (int i = 0; i < result.Length; i++)
+            {
+                Console.WriteLine(String.Format("Core{0}IdleTime = {1}", i.ToString(), result[i]));
+            }
         }
+
+        public void TestChooseAlgorithm()
+        {
+            Console.WriteLine(String.Format("Algorithm = {0}", Computation.Algorithm.StrategyChooser.FindMostRelevantComponent(new object[] { "C:" },
+                Computation.FabricMethods.AlgorithmFactoryMethod.GetFunc(Computation.Enums.Algorithms.LowestIdleTime)).ComputationType));
+        }
+
+        public void TestDiskStrategy()
+        {
+
+            var a = new Computation.Workers.WorkerProvider(new Computation.Data.Workers.BlockDiskWorker(
+                blockDataProvider, blockDataProvider, compression));
+
+            a.Start();
+        }
+    
     }
 }

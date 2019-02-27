@@ -52,20 +52,29 @@
   <ItemGroup>
     <Compile Include="Compression\Algorithms\DeflateCompression.cs" />
     <Compile Include="Compression\Algorithms\GZipCompression.cs" />
-    <Compile Include="Compression\Compression.cs" />
-    <Compile Include="Compression\CompressionFabricMethod.cs" />
-    <Compile Include="Compression\Data\CompressionEnums.cs" />
-    <Compile Include="Compression\Interfaces\ICompression.cs" />
+    <Compile Include="Compression\Strategy\Compression.cs" />
+    <Compile Include="Compression\FabricMethods\CompressionFabricMethod.cs" />
+    <Compile Include="Compression\Enums\CompressionEnums.cs" />
+    <Compile Include="Compression\Interfaces\ICompressionStrategy.cs" />
     <Compile Include="Compression\Utils\API.cs" />
-    <Compile Include="Computation\Algorithm\Compute.cs" />
-    <Compile Include="Computation\Algorithm\ResourceCheck.cs" />
+    <Compile Include="Computation\Algorithm\Realizations\LowestIdleTime.cs" />
+    <Compile Include="Computation\Data\ByteBlock.cs" />
+    <Compile Include="Computation\Data\Structures\StrategyResult.cs" />
+    <Compile Include="Computation\Data\Workers\BlockCpuWorker.cs" />
+    <Compile Include="Computation\Data\Workers\BlockDiskWorker.cs" />
+    <Compile Include="Computation\FabricMethods\AlgorithmFactoryMethod.cs" />
+    <Compile Include="Computation\Utils\ResourceCheck.cs" />
+    <Compile Include="Computation\Algorithm\StrategyChooser.cs" />
+    <Compile Include="Computation\Enums\ComputationEnums.cs" />
+    <Compile Include="Computation\Interfaces\IComputation.cs" />
+    <Compile Include="Computation\Workers\WorkerProvider.cs" />
     <Compile Include="IO\DataProviders\BlockDataProvider.cs" />
-    <Compile Include="IO\DataProviders\Block\FileBlock.cs" />
-    <Compile Include="IO\Data\AbstractDataProvider.cs" />
-    <Compile Include="IO\Data\AbstractDataSource.cs" />
-    <Compile Include="IO\Data\ProvidersEnum.cs" />
+    <Compile Include="IO\Data\Block\FileBlock.cs" />
+    <Compile Include="IO\Data\AbstractClasses\AbstractDataProvider.cs" />
+    <Compile Include="IO\Data\AbstractClasses\AbstractDataSource.cs" />
+    <Compile Include="IO\Enums\ProvidersEnum.cs" />
     <Compile Include="IO\Interfaces\IBlockProvider.cs" />
-    <Compile Include="IO\IOFabricMethod.cs" />
+    <Compile Include="IO\FabricMethods\IOFabricMethod.cs" />
     <Compile Include="IO\Utils\API.cs" />
     <Compile Include="IO\Utils\ChechkTheFreeSpace.cs" />
     <Compile Include="Program.cs" />
@@ -73,7 +82,9 @@
     <Compile Include="Tests\Tests.cs" />
     <Compile Include="Utils\CLI\Commands.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Compression\Data\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
