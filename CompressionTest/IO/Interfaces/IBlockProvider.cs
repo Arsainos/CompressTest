@@ -12,5 +12,6 @@ namespace CompressionTest.IO.Interfaces
         void WriteAll(byte[] binary);
         void WriteNext(byte[] binary);
         long GetObjectSize();
+        int GetChunkSize();
     }
 }

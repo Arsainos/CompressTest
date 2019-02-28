@@ -7,7 +7,7 @@ namespace CompressionTest.IO.Data
 {
     abstract class AbstractDataSource : IDisposable
     {
-        public AbstractDataSource(string[] payload)
+        public AbstractDataSource(object[] payload)
         {
 
         }

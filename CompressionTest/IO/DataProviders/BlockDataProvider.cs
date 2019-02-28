@@ -8,7 +8,7 @@ namespace CompressionTest.IO.DataProviders
 {
     class BlockDataProvider : IO.Data.AbstractDataProvider, IBlockProvider
     {
-        private IBlockProvider _blockProvider { get; set; }
+        public IBlockProvider _blockProvider { private get; set; }
 
         public BlockDataProvider(object underlayingStructure) : base(underlayingStructure)
         {
@@ -49,6 +49,11 @@ namespace CompressionTest.IO.DataProviders
         public long GetObjectSize()
         {
             return _blockProvider.GetObjectSize();
+        }
+
+        public int GetChunkSize()
+        {
+            return _blockProvider.GetChunkSize();
         }
     }
 }

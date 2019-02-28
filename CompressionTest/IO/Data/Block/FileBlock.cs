@@ -13,7 +13,7 @@ namespace CompressionTest.IO.DataProviders.Block
         protected FileStream _outputStream;
         protected BinaryReader binaryReader;
         protected BinaryWriter binaryWriter;
-        protected int _chunckSize;
+        private int _chunckSize = 4096;
         protected long _fileSize;
         protected FileInfo _fileInfo;
 
@@ -25,7 +25,10 @@ namespace CompressionTest.IO.DataProviders.Block
                     InputDirectionValidation(payload);
                     _inputStream = CheckInputFileExist(payload[0]);
                     binaryReader = new BinaryReader(_inputStream);
-                    _chunckSize = Convert.ToInt32(payload[1]);
+                    if (payload.Length > 1)
+                    {
+                        _chunckSize = Convert.ToInt32(payload[1]);
+                    }
                     _fileInfo = new FileInfo(payload[0]);
                     _fileSize = _fileInfo.Length;
                     break;
@@ -42,7 +45,10 @@ namespace CompressionTest.IO.DataProviders.Block
                     _outputStream = CheckOutputFileExist(payload[1]);
                     binaryReader = new BinaryReader(_inputStream);
                     binaryWriter = new BinaryWriter(_outputStream);
-                    _chunckSize = Convert.ToInt32(payload[2]);
+                    if(payload.Length > 2)
+                    {
+                        _chunckSize = Convert.ToInt32(payload[2]);
+                    }                   
                     _fileInfo = new FileInfo(payload[0]);
                     _fileSize = _fileInfo.Length;
                     break;
@@ -52,26 +58,51 @@ namespace CompressionTest.IO.DataProviders.Block
         public override void InputDirectionValidation(string[] payload)
         {
             base.InputDirectionValidation(payload);
+            if(payload.Length < 1)
+            {
+                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
+            }
         }
 
         public override void OutputDirectionValidation(string[] payload)
         {
             base.OutputDirectionValidation(payload);
+            if(payload.Length < 1)
+            {
+                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
+            }
         }
 
         public override void InOutDirectionValidation(string[] payload)
         {
             base.InOutDirectionValidation(payload);
+            if(payload.Length < 2)
+            {
+                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
+            }
         }
 
         public override void Dispose()
         {
-            //
+            binaryWriter.Close();
+            binaryReader.Close();
+            _inputStream.Close();
+            _outputStream.Close();
+            _inputStream.Dispose();
+            _outputStream.Dispose();
+
+            _fileInfo = null;
+            
         }
 
         public long GetObjectSize()
         {
             return _fileSize;
+        }
+
+        public int GetChunkSize()
+        {
+            return _chunckSize;
         }
 
         public static string[] GetInputInfo()
