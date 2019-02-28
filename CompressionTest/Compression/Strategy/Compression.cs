@@ -6,7 +6,7 @@ using CompressionTest.Compression.Interfaces;
 
 namespace CompressionTest.Compression
 {
-    class Compression : ICompressionStrategy
+    class Compression : ICompressionStrategy, ICloneable
     {
         public ICompressionStrategy CompressionStrategy { private get; set; }
 
@@ -23,6 +23,11 @@ namespace CompressionTest.Compression
         public byte[] Decompress(byte[] input)
         {
             return CompressionStrategy.Decompress(input);
+        }
+
+        public object Clone()
+        {
+            return new Compression(this.CompressionStrategy);
         }
     }
 }
