@@ -6,7 +6,7 @@ using CompressionTest.IO.Interfaces;
 
 namespace CompressionTest.IO.DataProviders
 {
-    class BlockDataProvider : IO.Data.AbstractDataProvider, IBlockProvider
+    class BlockDataProvider : IO.Data.AbstractDataProvider, IBlockProvider, IDisposable
     {
         public IBlockProvider _blockProvider { private get; set; }
 
