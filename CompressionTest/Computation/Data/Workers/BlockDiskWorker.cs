@@ -13,60 +13,52 @@ namespace CompressionTest.Computation.Data.Workers
     {
         AutoResetEvent waitHandler = new AutoResetEvent(false);
 
-        protected class Utils
-        {
-            public static double GetMaximumChunks(double chunkSize)
-            {
-                double RamFreeSize = Computation.Utils.ResourceCheck.checkRamSize() * 0.9; // Чтобы не всю оперативную память занять,
-                                                                                           // оставим 10% для жизни на Марсе
-                return Math.Ceiling(RamFreeSize / chunkSize);
-            }
-
-            public static double GetNumberOfChunksForFile(double chunkSize, double objectSize)
-            {
-                return Math.Ceiling(objectSize / chunkSize);
-            }
-        }
-
         protected IO.DataProviders.BlockDataProvider input;
         protected IO.DataProviders.BlockDataProvider Output;
-
         protected Compression.Compression compression;
-
-        private double numberOfChunks;
-        private int chunkSize = 4096;
-        private double fileChunks;
 
         protected Queue<Data.ByteBlock> readQueue;
         protected Queue<Data.ByteBlock> writeQueue;
-        private Thread[] _threads;
+        protected Thread[] _threads;
 
-        private object readLock = new object();
-        private object writeLock = new object();
+        private readonly object readLock = new object();
+        private readonly object writeLock = new object();
 
         private Disk _disk;
         private Cpu _cpu;
 
-        public BlockDiskWorker(IO.DataProviders.BlockDataProvider input, IO.DataProviders.BlockDataProvider Output, Compression.Compression compression)
+        public BlockDiskWorker(IO.DataProviders.BlockDataProvider input,
+            IO.DataProviders.BlockDataProvider Output,
+            Compression.Compression compression,
+            Compression.Enums.CompressionType compressionType)
+        {
+            initialize(input, Output, compression, compressionType);
+        }
+
+        void initialize(IO.DataProviders.BlockDataProvider input,
+            IO.DataProviders.BlockDataProvider Output,
+            Compression.Compression compression,
+            Compression.Enums.CompressionType compressionType)
         {
             Console.WriteLine("\n\rНачинаю обработку\n\r");
-            this.numberOfChunks = Utils.GetMaximumChunks(chunkSize);
-            int queueCapacity = (int)(this.numberOfChunks / 2);
-            this.fileChunks = Utils.GetNumberOfChunksForFile(chunkSize, input.GetObjectSize());
+            var chunkSize = input.GetChunkSize();
+            var fileChunks = Computation.Utils.GetComputationInfo.GetNumberOfChunksForFile(chunkSize, input.GetObjectSize());           
+            var numberOfChunks = Computation.Utils.GetComputationInfo.GetMaximumChunks(chunkSize);
+            int queueCapacity = (int)(numberOfChunks / 2);
 
-            this.input = input;            
+            this.input = input;
             this.Output = Output;
             this.readQueue = new Queue<Data.ByteBlock>(queueCapacity);
             this.writeQueue = new Queue<Data.ByteBlock>(queueCapacity);
             this.compression = compression;
 
-            _disk = new Disk(this.readLock, this.writeLock, 
-                this.input, this.Output, 
-                this.readQueue, this.writeQueue, 
-                queueCapacity, (int)this.fileChunks, 
+            _disk = new Disk(this.readLock, this.writeLock,
+                this.input, this.Output,
+                this.readQueue, this.writeQueue,
+                queueCapacity, (int)fileChunks,
                 ref waitHandler);
 
-            _cpu = new Cpu(this.readLock, this.writeQueue, this.writeQueue, this.readQueue, this.compression, (int)this.fileChunks);
+            _cpu = new Cpu(this.readLock, this.writeQueue, this.writeQueue, this.readQueue, this.compression, (int)fileChunks,compressionType);
 
             _threads = new Thread[3];
             _threads[0] = new Thread(new ThreadStart(_disk.StartRead));
@@ -81,11 +73,20 @@ namespace CompressionTest.Computation.Data.Workers
                 _threads[i].Start();
             }
             waitHandler.WaitOne();
+            Console.WriteLine("Обработка завершена!");
         }
 
         public void Stop()
         {
+            _disk.CleanResources();
+            _cpu.CleanResources();
 
+            input.Dispose();
+            Output.Dispose();
+
+            compression = null;
+            readQueue = null;
+            writeQueue = null;           
         }
 
         abstract class DiskWorker
@@ -201,12 +202,18 @@ namespace CompressionTest.Computation.Data.Workers
         class Cpu : DiskWorker
         {
             private Compression.Compression compression;
+            private Compression.Enums.CompressionType CompressionType;
             private int chunks;
 
-            public Cpu(object readLock, object writeLock, Queue<ByteBlock> writeQueue, Queue<ByteBlock> readQueue, Compression.Compression compression, int maxChunks) : base(readLock, writeLock, writeQueue, readQueue)
+            public Cpu(object readLock, object writeLock,
+                Queue<ByteBlock> writeQueue, Queue<ByteBlock> readQueue,
+                Compression.Compression compression,
+                int maxChunks,
+                Compression.Enums.CompressionType compressionType) : base(readLock, writeLock, writeQueue, readQueue)
             {
                 this.compression = compression;
                 this.chunks = maxChunks;
+                this.CompressionType = compressionType;
             }
 
             public override void CleanResources()
@@ -234,7 +241,17 @@ namespace CompressionTest.Computation.Data.Workers
                     }
                     if(canSend)
                     {
-                        byteBlock.Slice = compression.Compress(byteBlock.Slice);
+                        switch(CompressionType)
+                        {
+                            case Compression.Enums.CompressionType.Compress:
+                                byteBlock.Slice = compression.Compress(byteBlock.Slice);
+                                break;
+
+                            case Compression.Enums.CompressionType.Decompress:
+                                byteBlock.Slice = compression.Decompress(byteBlock.Slice);
+                                break;
+                        }
+                        
                         lock(writeLock)
                         {
                             writeQueue.Enqueue(byteBlock);
