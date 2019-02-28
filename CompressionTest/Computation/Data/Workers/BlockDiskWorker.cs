@@ -9,7 +9,7 @@ using CompressionTest.IO.DataProviders;
 
 namespace CompressionTest.Computation.Data.Workers
 {
-    class BlockDiskWorker : Interfaces.IComputation
+    class BlockDiskWorker : Interfaces.IComputation, IDisposable
     {
         AutoResetEvent waitHandler = new AutoResetEvent(false);
 
@@ -87,6 +87,11 @@ namespace CompressionTest.Computation.Data.Workers
             compression = null;
             readQueue = null;
             writeQueue = null;           
+        }
+
+        public void Dispose()
+        {
+            this.Stop();
         }
 
         abstract class DiskWorker

@@ -5,13 +5,19 @@ using System.Text;
 
 namespace CompressionTest.Computation.Workers
 {
-    class WorkerProvider : Interfaces.IComputation
+    class WorkerProvider : Data.AbstractClasses.AbstractWorkerProvider,Interfaces.IComputation, IDisposable
     {
         public Interfaces.IComputation ComputationStrategy { private get; set; }
 
-        public WorkerProvider(Interfaces.IComputation computation)
+        public WorkerProvider(object underlayingStructure) : base(underlayingStructure)
         {
-            ComputationStrategy = computation;
+            objectValidation<Interfaces.IComputation>(underlayingStructure);
+            ComputationStrategy = (Interfaces.IComputation)underlayingStructure;
+        }
+
+        public override void objectValidation<T>(object uderlayingStructure)
+        {
+            base.objectValidation<T>(uderlayingStructure);
         }
 
         public void Start()
@@ -22,6 +28,11 @@ namespace CompressionTest.Computation.Workers
         public void Stop()
         {
             ComputationStrategy.Stop();
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
         }
     }
 }
