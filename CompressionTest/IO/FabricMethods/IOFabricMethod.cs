@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using CompressionTest.IO.Data;
 
-namespace CompressionTest.IO
+namespace CompressionTest.IO.FabricMethods
 {
     static class IOFabricMethod<T>
     {
@@ -16,7 +16,7 @@ namespace CompressionTest.IO
                 switch (source)
                 {
                     case DataSource.File:
-                        object args = new DataProviders.Block.FileBlock(payload, direction);
+                        object args = new Data.Block.FileBlock(payload, direction);
                         return (T)Activator.CreateInstance(typeof(T), args);
                 }
             }

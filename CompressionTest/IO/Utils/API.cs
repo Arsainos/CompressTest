@@ -7,24 +7,42 @@ namespace CompressionTest.IO.Utils
 {
     static class API
     {
-        public static string[] GetSourceTypes()
+        public static Dictionary<string,Data.DataSource> GetSourceTypes()
         {
-            return Enum.GetNames(typeof(IO.Data.DataSource));
+            var names = Enum.GetNames(typeof(IO.Data.DataSource));
+            var values = Enum.GetValues(typeof(IO.Data.DataSource));
+
+            var result = new Dictionary<string, Data.DataSource>();
+            for(int i=0;i<names.Length;i++)
+            {
+                result.Add(names[i], (Data.DataSource)values.GetValue(i));
+            }
+
+            return result;
         }
 
-        public static string[] GetDataProvidersTypes()
+        public static Dictionary<string,Data.ProviderType> GetDataProvidersTypes()
         {
-            return Enum.GetNames(typeof(IO.Data.ProviderType));
+            var names = Enum.GetNames(typeof(IO.Data.ProviderType));
+            var values = Enum.GetValues(typeof(IO.Data.ProviderType));
+
+            var result = new Dictionary<string, Data.ProviderType>();
+            for (int i = 0; i < names.Length; i++)
+            {
+                result.Add(names[i], (Data.ProviderType)values.GetValue(i));
+            }
+
+            return result;
         }
 
         public static string[] GetBlockFileInfoInput()
         {
-            return DataProviders.Block.FileBlock.GetInputInfo();
+            return Data.Block.FileBlock.GetInputInfo();
         }
 
         public static string[] GetBlockFileInfoOutput()
         {
-            return DataProviders.Block.FileBlock.GetOutputInfo();
+            return Data.Block.FileBlock.GetOutputInfo();
         }
     }
 }

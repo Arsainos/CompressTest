@@ -5,9 +5,9 @@ using System.Text;
 using CompressionTest.IO.Interfaces;
 using System.IO;
 
-namespace CompressionTest.IO.DataProviders.Block
+namespace CompressionTest.IO.Data.Block
 {
-    class FileBlock : Data.AbstractDataSource, IBlockProvider
+    class FileBlock : Data.AbstractClasses.AbstractDataSource, IBlockProvider
     {
         protected FileStream _inputStream;
         protected FileStream _outputStream;
@@ -86,8 +86,6 @@ namespace CompressionTest.IO.DataProviders.Block
         {
             binaryWriter.Close();
             binaryReader.Close();
-            _inputStream.Close();
-            _outputStream.Close();
             _inputStream.Dispose();
             _outputStream.Dispose();
 
@@ -109,8 +107,10 @@ namespace CompressionTest.IO.DataProviders.Block
         {
             return new List<string>
             {
-                "[InputPath] - Путь до файла из которого будте производится считывание данных",
-                "[ChunkSize] - Размер блока который необходимо будет считать" 
+                "[R][InputPath;ChunkSize;DataProvider]",
+                "[R][InputPath] - Путь до файла из которого будте производится считывание данных",
+                "[O][ChunkSize] - Размер блока который необходимо будет считать,\n\rВ случае если не указать в явном виде, то по дефолту будет использован параметр '4096'",
+                "[R][DataProvider] - Тип предоставления доступа к данным"
             }.ToArray();
         }
 
@@ -118,7 +118,9 @@ namespace CompressionTest.IO.DataProviders.Block
         {
             return new List<string>
             {
-                "[OutputPath] - Путь до файла в который будет производится запись данных"
+                "[O][OutputPath;DataProvider]",
+                "[O][OutputPath] - Путь до файла в который будет производится запись данных\n\rВ случае если не указать в явном виде, файл заархивируется в туже папку где и оригинальный файл"
+                "[O][DataProvider] - Тип предоставления доступа к данным, если не указать то будет использован точно такой же метод как в Input"
             }.ToArray();
         }
 

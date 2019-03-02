@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CompressionTest.IO.Data
+namespace CompressionTest.IO.Data.AbstractClasses
 {
     abstract class AbstractDataSource : IDisposable
     {
