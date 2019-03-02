@@ -6,8 +6,15 @@ using CompressionTest.Compression.Enums;
 
 namespace CompressionTest.Compression.Utils
 {
+    /// <summary>
+    /// Provides info about compression component to other components
+    /// </summary>
     static class API
     {
+        /// <summary>
+        /// Get info about compressions algorithm
+        /// </summary>
+        /// <returns>Dictionary with key of enums names, and values as it is</returns>
         public static Dictionary<string,CompressionAlgorithms> getCompressionAlgorithms()
         {
             var names = Enum.GetNames(typeof(CompressionAlgorithms));
@@ -19,7 +26,10 @@ namespace CompressionTest.Compression.Utils
             }
             return dictionary;
         }
-
+        /// <summary>
+        /// Get info about compression types
+        /// </summary>
+        /// <returns>Dictionary with key of enums names, and values as it is</returns>
         public static Dictionary<string, CompressionType> getCompressionTypes()
         {
             var names = Enum.GetNames(typeof(CompressionType));
