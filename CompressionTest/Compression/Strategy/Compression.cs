@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using CompressionTest.Compression.Interfaces;
 
-namespace CompressionTest.Compression
+namespace CompressionTest.Compression.Strategy
 {
     class Compression : ICompressionStrategy, ICloneable
     {

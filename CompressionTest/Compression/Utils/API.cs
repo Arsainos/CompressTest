@@ -8,19 +8,26 @@ namespace CompressionTest.Compression.Utils
 {
     static class API
     {
-        public static string[] getCompressionAlgorithms()
+        public static Dictionary<string,CompressionAlgorithms> getCompressionAlgorithms()
         {
-            return Enum.GetNames(typeof(CompressionAlgorithms));
+            var names = Enum.GetNames(typeof(CompressionAlgorithms));
+            var values = Enum.GetValues(typeof(CompressionAlgorithms));
+            var dictionary = new Dictionary<string, CompressionAlgorithms>();
+            for (int i = 0; i < names.Length; i++)
+            {
+                dictionary.Add(names[i], (CompressionAlgorithms)values.GetValue(i));
+            }
+            return dictionary;
         }
 
-        public static Dictionary<string,int> getCompressionTypes()
+        public static Dictionary<string, CompressionType> getCompressionTypes()
         {
             var names = Enum.GetNames(typeof(CompressionType));
             var values = Enum.GetValues(typeof(CompressionType));
-            var dictionary = new Dictionary<string, int>();
+            var dictionary = new Dictionary<string, CompressionType>();
             for(int i=0;i<names.Length;i++)
             {
-                dictionary.Add(names[i], (int)values.GetValue(i));
+                dictionary.Add(names[i], (CompressionType)values.GetValue(i));
             }
 
             return dictionary;
