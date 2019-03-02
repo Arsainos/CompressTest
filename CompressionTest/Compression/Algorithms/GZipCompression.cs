@@ -16,17 +16,18 @@ namespace CompressionTest.Compression.Algorithms
             {
                 using (var zipStream = new GZipStream(memoryStream, CompressionMode.Compress))
                 {
-                    zipStream.Write(input, 0, input.Length);
+                    zipStream.Write(input, 0, input.Length);                   
                 }
-
                 return memoryStream.ToArray();
             }
         }
 
         public byte[] Decompress(byte[] input)
-        {
-            using (var zipStream = new GZipStream(new MemoryStream(input), CompressionMode.Decompress))
+        {   
+            
+            using (GZipStream zipStream = new GZipStream(new MemoryStream(input), CompressionMode.Decompress))
             {
+
                 const int block = 4096;
                 byte[] buffer = new byte[block];
 
@@ -45,6 +46,7 @@ namespace CompressionTest.Compression.Algorithms
                     return memoryStream.ToArray();
                 }
             }
+            
         }
     }
 }

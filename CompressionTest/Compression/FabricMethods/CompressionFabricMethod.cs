@@ -13,10 +13,14 @@ namespace CompressionTest.Compression.FabricMethods
             switch (algorithmType)
             {
                 case CompressionAlgorithms.Gzip:
-                    return new Strategy.Compression(new Algorithms.GZipCompression());
-
+                    return new Strategy.Compression(
+                        new Algorithms.GZipCompression(), 
+                        algorithmType, 
+                        Utils.MagicNumbersAlgorithmDictionary.AlgorithmMagicNumbers[algorithmType]);
+                /*
                 case CompressionAlgorithms.Deflate:
-                    return new Strategy.Compression(new Algorithms.DeflateCompression());
+                    return new Strategy.Compression(new Algorithms.DeflateCompression(), algorithmType);
+                    */
 
             }
 
