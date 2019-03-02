@@ -9,11 +9,13 @@ namespace CompressionTest.Computation.Data
     {
         public byte[] Slice;
         public int blockNumber;
+        public bool lastSubset;
 
-        public ByteBlock(byte[] slice, int blockNumber)
+        public ByteBlock(byte[] slice, int blockNumber,bool lastSubset = false)
         {
             this.Slice = slice;
             this.blockNumber = blockNumber;
+            this.lastSubset = lastSubset;
         }
     }
 }

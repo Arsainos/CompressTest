@@ -40,7 +40,7 @@ namespace CompressionTest.Computation.Data.Workers
             Compression.Strategy.Compression compression,
             Compression.Enums.CompressionType compressionType)
         {
-            Console.WriteLine("\n\rНачинаю обработку\n\r");
+            Console.WriteLine("\n\rComputation started!\n\r");
             var chunkSize = input.GetChunkSize();
             var fileChunks = Computation.Utils.GetComputationInfo.GetNumberOfChunksForFile(chunkSize, input.GetObjectSize());           
             var numberOfChunks = Computation.Utils.GetComputationInfo.GetMaximumChunks(chunkSize);
@@ -55,10 +55,12 @@ namespace CompressionTest.Computation.Data.Workers
             _disk = new Disk(this.readLock, this.writeLock,
                 this.input, this.Output,
                 this.readQueue, this.writeQueue,
-                queueCapacity, (int)fileChunks,
-                ref waitHandler);
+                queueCapacity,
+                ref waitHandler,
+                this.compression.algorithms,
+                compressionType);
 
-            _cpu = new Cpu(this.readLock, this.writeQueue, this.writeQueue, this.readQueue, this.compression, (int)fileChunks,compressionType);
+            _cpu = new Cpu(this.readLock, this.writeQueue, this.writeQueue, this.readQueue, this.compression,compressionType);
 
             _threads = new Thread[3];
             _threads[0] = new Thread(new ThreadStart(_disk.StartRead));
@@ -73,7 +75,7 @@ namespace CompressionTest.Computation.Data.Workers
                 _threads[i].Start();
             }
             waitHandler.WaitOne();
-            Console.WriteLine("Обработка завершена!");
+            Console.WriteLine("\n\rComputation completed!\n\r");
         }
 
         public void Stop()
@@ -81,12 +83,11 @@ namespace CompressionTest.Computation.Data.Workers
             _disk.CleanResources();
             _cpu.CleanResources();
 
-            input.Dispose();
-            Output.Dispose();
-
-            compression = null;
-            readQueue = null;
-            writeQueue = null;           
+            this.input = null;
+            this.Output = null;
+            this.compression = null;
+            this.readQueue = null;
+            this.writeQueue = null;           
         }
 
         public void Dispose()
@@ -129,41 +130,55 @@ namespace CompressionTest.Computation.Data.Workers
             private IO.DataProviders.BlockDataProvider readProvider;
             private IO.DataProviders.BlockDataProvider writeProvider;
             private int queueCapacity;
-            private int chunksNumber;
             private AutoResetEvent waitHandle;
+            private Compression.Enums.CompressionAlgorithms algorithms;
+            private Compression.Enums.CompressionType CompressionType;
             public Disk(object readLock, object writeLock,
                 BlockDataProvider readProvider, BlockDataProvider writeProvider, 
                 Queue<ByteBlock> readQueue, Queue<ByteBlock> writeQueue, 
-                int queueCapacity, int chunksNumber, 
-                ref AutoResetEvent resetEvent) : base(readLock, writeLock,writeQueue,readQueue)
+                int queueCapacity,
+                ref AutoResetEvent resetEvent,
+                Compression.Enums.CompressionAlgorithms algorithms,
+                Compression.Enums.CompressionType CompressionType) : base(readLock, writeLock,writeQueue,readQueue)
             {
                 this.queueCapacity = queueCapacity;
-                this.chunksNumber = chunksNumber;
                 this.readProvider = readProvider;
                 this.writeProvider = writeProvider;
                 this.waitHandle = resetEvent;
+                this.algorithms = algorithms;
+                this.CompressionType = CompressionType;
             }
 
             public void StartRead()
             {
                 bool canRead = true;
                 int chunkNumber = 1;
+               
                 while (canRead)
                 {
                     lock (readLock)
                     {
                         if (readQueue.Count < queueCapacity)
                         {
-                            byte[] NextSlice = readProvider.ReadNext();
-                            if (NextSlice.Length > 0)
+                            byte[] NextSlice = null;
+                            bool last = false;
+                            switch (CompressionType)
                             {
-                                readQueue.Enqueue(new ByteBlock(NextSlice, chunkNumber));
-                                chunkNumber++;
+                                case Compression.Enums.CompressionType.Compress:
+                                    NextSlice = readProvider.ReadNext(out last);
+                                    break;
+
+                                case Compression.Enums.CompressionType.Decompress:
+                                    NextSlice = readProvider
+                                                    .SpecificRead(Compression.Utils.MagicNumbersAlgorithmDictionary
+                                                    .AlgorithmMagicNumbers[algorithms].completeMask,out last);
+                                    break;
                             }
-                            else
-                            {
-                                canRead = false;
-                            }
+
+                            readQueue.Enqueue(new ByteBlock(NextSlice, chunkNumber, last));
+                            chunkNumber++;
+
+                            if (last) canRead = false;
                         }
                         else
                         {
@@ -176,15 +191,16 @@ namespace CompressionTest.Computation.Data.Workers
 
             public void StartWrite()
             {
-                int chunks = chunksNumber;
-                while(chunks > 0)
+                bool last = false;
+                while(!last)
                 {
                     lock(writeLock)
                     {
                         if(writeQueue.Count > 0)
                         {
-                            writeProvider.WriteNext(writeQueue.Dequeue().Slice);
-                            chunks--;
+                            ByteBlock block = writeQueue.Dequeue();
+                            last = block.lastSubset;
+                            writeProvider.WriteNext(block.Slice);
                         }
                         else
                         {
@@ -208,16 +224,13 @@ namespace CompressionTest.Computation.Data.Workers
         {
             private Compression.Strategy.Compression compression;
             private Compression.Enums.CompressionType CompressionType;
-            private int chunks;
 
             public Cpu(object readLock, object writeLock,
                 Queue<ByteBlock> writeQueue, Queue<ByteBlock> readQueue,
                 Compression.Strategy.Compression compression,
-                int maxChunks,
                 Compression.Enums.CompressionType compressionType) : base(readLock, writeLock, writeQueue, readQueue)
             {
                 this.compression = compression;
-                this.chunks = maxChunks;
                 this.CompressionType = compressionType;
             }
 
@@ -241,7 +254,7 @@ namespace CompressionTest.Computation.Data.Workers
                         {
                             byteBlock = readQueue.Dequeue();
                             canSend = true;
-                            if (byteBlock.blockNumber == chunks) canWork = false;
+                            canWork = !byteBlock.lastSubset;
                         }
                     }
                     if(canSend)

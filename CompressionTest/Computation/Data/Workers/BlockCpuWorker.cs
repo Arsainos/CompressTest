@@ -12,14 +12,14 @@ namespace CompressionTest.Computation.Data.Workers
         protected IO.DataProviders.BlockDataProvider _input;
         protected IO.DataProviders.BlockDataProvider _output;
         protected int _currentBlock;
-        protected int _fileChunks;
+        protected bool _last;
         private Compression.Enums.CompressionType _compressionType;
         protected Compression.Strategy.Compression compression;
 
         private readonly object readLock = new object();
         private readonly object writeLock = new object();
         private readonly object currentLock = new object();
-        private readonly object chunksLock = new object();
+        private readonly object lastLock = new object();
         private readonly object comptypeLock = new object();
 
         protected Thread[] _threads;
@@ -82,9 +82,9 @@ namespace CompressionTest.Computation.Data.Workers
             _threads[1] = new Thread(new ParameterizedThreadStart(Processing));
 
             _currentBlock = 0;
+            _last = false;
             this.compression = compression;
             _compressionType = compressionType;
-            _fileChunks = (int)Utils.GetComputationInfo.GetNumberOfChunksForFile(_input.GetChunkSize(), _input.GetObjectSize());
             this.currentCore = currentCore;
         }
 
@@ -92,32 +92,49 @@ namespace CompressionTest.Computation.Data.Workers
         {
             Compression.Strategy.Compression compression = (Compression.Strategy.Compression)param;
             Compression.Enums.CompressionType type;
-            int maxSize = 0;
+            bool last = false;
 
-            lock(chunksLock)
-            {
-                maxSize = _fileChunks;
-            }
             lock(comptypeLock)
             {
                 type = _compressionType;
             }
 
-            while(GetCurrentBlock() != maxSize)
+            while(!last)
             {
-                byte[] byteBlock = null;
-                int current = GetCurrentBlock();
-
-                lock(readLock)
+                lock(lastLock)
                 {
-                    byteBlock = _input.ReadNext();
+                    last = _last;
                 }
 
-                ByteBlock block = new ByteBlock(byteBlock, current);
+                byte[] byteBlock = null;
+                int current = GetCurrentBlock();
+                bool latest = false;
+                lock(readLock)
+                {
+                    switch(type)
+                    {
+                        case Compression.Enums.CompressionType.Compress:
+                            byteBlock = _input.ReadNext(out latest);
+                            break;
+
+                        case Compression.Enums.CompressionType.Decompress:
+                            byteBlock = _input.SpecificRead(
+                                Compression.Utils.MagicNumbersAlgorithmDictionary
+                                .AlgorithmMagicNumbers[compression.algorithms].completeMask, out latest);
+                            break;
+                    }                    
+                }
+
+                ByteBlock block = new ByteBlock(byteBlock, current,latest);
                 current++;
                 lock(currentLock)
                 {
                     _currentBlock++;
+                }
+
+                lock(lastLock)
+                {
+                    _last = latest;
                 }
 
                 switch (type)
@@ -137,7 +154,7 @@ namespace CompressionTest.Computation.Data.Workers
                 }               
                 block.Slice = null;
 
-                if(current == maxSize)
+                if(latest)
                 {
                     waitHandle.Set();
                 }
