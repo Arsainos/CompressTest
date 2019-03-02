@@ -7,8 +7,10 @@ namespace CompressionTest.IO.Interfaces
 {
     interface IBlockProvider
     {
-        byte[] ReadAll();
-        byte[] ReadNext();
+        byte[] ReadAll(out bool last);
+        byte[] ReadNext(out bool last);
+        byte[] SpecificRead(byte[] magicNumber, out bool last);
+        byte[] ReadArray(int count);
         void WriteAll(byte[] binary);
         void WriteNext(byte[] binary);
         long GetObjectSize();

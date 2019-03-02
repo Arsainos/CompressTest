@@ -2,34 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CompressionTest.IO.Enums;
 
 namespace CompressionTest.IO.Utils
 {
     static class API
     {
-        public static Dictionary<string,Data.DataSource> GetSourceTypes()
+        public static Dictionary<string,DataSource> GetSourceTypes()
         {
-            var names = Enum.GetNames(typeof(IO.Data.DataSource));
-            var values = Enum.GetValues(typeof(IO.Data.DataSource));
+            var names = Enum.GetNames(typeof(DataSource));
+            var values = Enum.GetValues(typeof(DataSource));
 
-            var result = new Dictionary<string, Data.DataSource>();
+            var result = new Dictionary<string,DataSource>();
             for(int i=0;i<names.Length;i++)
             {
-                result.Add(names[i], (Data.DataSource)values.GetValue(i));
+                result.Add(names[i], (DataSource)values.GetValue(i));
             }
 
             return result;
         }
 
-        public static Dictionary<string,Data.ProviderType> GetDataProvidersTypes()
+        public static Dictionary<string,ProviderType> GetDataProvidersTypes()
         {
-            var names = Enum.GetNames(typeof(IO.Data.ProviderType));
-            var values = Enum.GetValues(typeof(IO.Data.ProviderType));
+            var names = Enum.GetNames(typeof(ProviderType));
+            var values = Enum.GetValues(typeof(ProviderType));
 
-            var result = new Dictionary<string, Data.ProviderType>();
+            var result = new Dictionary<string, ProviderType>();
             for (int i = 0; i < names.Length; i++)
             {
-                result.Add(names[i], (Data.ProviderType)values.GetValue(i));
+                result.Add(names[i], (ProviderType)values.GetValue(i));
             }
 
             return result;

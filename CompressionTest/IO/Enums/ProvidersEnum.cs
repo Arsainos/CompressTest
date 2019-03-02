@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CompressionTest.IO.Data
+namespace CompressionTest.IO.Enums
 {
     public enum DataSource : int
     {

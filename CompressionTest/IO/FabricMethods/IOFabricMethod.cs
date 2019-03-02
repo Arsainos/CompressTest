@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CompressionTest.IO.Data;
+using CompressionTest.IO.Enums;
 
 namespace CompressionTest.IO.FabricMethods
 {

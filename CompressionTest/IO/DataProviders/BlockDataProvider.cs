@@ -26,14 +26,14 @@ namespace CompressionTest.IO.DataProviders
             base.objectValidation<T>(uderlayingStructure);
         }
 
-        public byte[] ReadAll()
+        public byte[] ReadAll(out bool last)
         {
-            return _blockProvider.ReadAll();
+            return _blockProvider.ReadAll(out last);
         }
 
-        public byte[] ReadNext()
+        public byte[] ReadNext(out bool last)
         {
-            return _blockProvider.ReadNext();
+            return _blockProvider.ReadNext(out last);
         }
 
         public void WriteAll(byte[] binary)
@@ -54,6 +54,16 @@ namespace CompressionTest.IO.DataProviders
         public int GetChunkSize()
         {
             return _blockProvider.GetChunkSize();
+        }
+
+        public byte[] SpecificRead(byte[] magicNumber, out bool last)
+        {
+            return _blockProvider.SpecificRead(magicNumber, out last);
+        }
+
+        public byte[] ReadArray(int count)
+        {
+            return _blockProvider.ReadArray(count);
         }
     }
 }

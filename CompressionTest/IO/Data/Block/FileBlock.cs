@@ -17,11 +17,11 @@ namespace CompressionTest.IO.Data.Block
         protected long _fileSize;
         protected FileInfo _fileInfo;
 
-        public FileBlock(string[] payload,Data.DirectionType directionType) : base(payload)
+        public FileBlock(string[] payload,Enums.DirectionType directionType) : base(payload)
         {
             switch(directionType)
             {
-                case Data.DirectionType.In:
+                case Enums.DirectionType.In:
                     InputDirectionValidation(payload);
                     _inputStream = CheckInputFileExist(payload[0]);
                     binaryReader = new BinaryReader(_inputStream);
@@ -33,13 +33,13 @@ namespace CompressionTest.IO.Data.Block
                     _fileSize = _fileInfo.Length;
                     break;
 
-                case Data.DirectionType.Out:
+                case Enums.DirectionType.Out:
                     OutputDirectionValidation(payload);
                     _outputStream = CheckOutputFileExist(payload[0]);
                     binaryWriter = new BinaryWriter(_outputStream);
                     break;
 
-                case Data.DirectionType.InOut:
+                case Enums.DirectionType.InOut:
                     InOutDirectionValidation(payload);
                     _inputStream = CheckInputFileExist(payload[0]);
                     _outputStream = CheckOutputFileExist(payload[1]);
@@ -84,10 +84,10 @@ namespace CompressionTest.IO.Data.Block
 
         public override void Dispose()
         {
-            binaryWriter.Close();
-            binaryReader.Close();
-            _inputStream.Dispose();
-            _outputStream.Dispose();
+            if(binaryWriter != null)binaryWriter.Close();
+            if(binaryReader != null)binaryReader.Close();
+            if(_inputStream != null)_inputStream.Dispose();
+            if(_outputStream != null)_outputStream.Dispose();
 
             _fileInfo = null;
             
@@ -107,10 +107,9 @@ namespace CompressionTest.IO.Data.Block
         {
             return new List<string>
             {
-                "[R][InputPath;ChunkSize;DataProvider]",
+                "[R][InputPath;ChunkSize]",
                 "[R][InputPath] - Путь до файла из которого будте производится считывание данных",
-                "[O][ChunkSize] - Размер блока который необходимо будет считать,\n\rВ случае если не указать в явном виде, то по дефолту будет использован параметр '4096'",
-                "[R][DataProvider] - Тип предоставления доступа к данным"
+                "[O][ChunkSize] - Размер блока который необходимо будет считать,\n\rВ случае если не указать в явном виде, то по дефолту будет использован параметр '4096'"
             }.ToArray();
         }
 
@@ -118,9 +117,8 @@ namespace CompressionTest.IO.Data.Block
         {
             return new List<string>
             {
-                "[O][OutputPath;DataProvider]",
-                "[O][OutputPath] - Путь до файла в который будет производится запись данных\n\rВ случае если не указать в явном виде, файл заархивируется в туже папку где и оригинальный файл",
-                "[O][DataProvider] - Тип предоставления доступа к данным, если не указать то будет использован точно такой же метод как в Input"
+                "[R][OutputPath]",
+                "[R][OutputPath] - Путь до файла в который будет производится запись данных\n\r"
             }.ToArray();
         }
 
@@ -148,14 +146,18 @@ namespace CompressionTest.IO.Data.Block
             }
         }
 
-        public byte[] ReadAll()
+        public byte[] ReadAll(out bool last)
         {
-            return binaryReader.ReadBytes((int)_fileSize);         
+            byte[] result = binaryReader.ReadBytes((int)_fileSize);
+            last = binaryReader.BaseStream.Position == binaryReader.BaseStream.Length;
+            return result;         
         }
 
-        public byte[] ReadNext()
+        public byte[] ReadNext(out bool last)
         {
-            return binaryReader.ReadBytes(_chunckSize);
+            byte[] result = binaryReader.ReadBytes(_chunckSize);
+            last = binaryReader.BaseStream.Position == binaryReader.BaseStream.Length;
+            return result;
         }
 
         public void WriteAll(byte[] binary)
@@ -168,6 +170,73 @@ namespace CompressionTest.IO.Data.Block
         {
             binaryWriter.Write(binary, 0, binary.Length);
             binaryWriter.Flush();
+        }
+
+        public byte[] ReadArray(int count)
+        {
+            return binaryReader.ReadBytes(count);
+        }
+
+        public byte[] SpecificRead(byte[] magicNumber, out bool last)
+        {
+            List<byte> resultByteArray = new List<byte>();
+            resultByteArray.AddRange(magicNumber.ToList());
+
+            int count = 0;
+            bool NextValue = false;
+            last = false;
+            while(count != magicNumber.Length)
+            {
+                if (binaryReader.BaseStream.Position == binaryReader.BaseStream.Length)
+                {
+                    last = true;
+                    break;
+                }
+
+                byte current = binaryReader.ReadByte();
+                resultByteArray.Add(current);
+
+                
+
+                if ((current == magicNumber[0]) && !NextValue) { count++; NextValue = true; }
+                else if ((current == magicNumber[count])
+                    && NextValue)
+                {
+                    bool canGo = false;
+                    var a = resultByteArray[resultByteArray.Count - 2];
+                    for (int i=0;i<count;i++)
+                    {
+                        if(resultByteArray[resultByteArray.Count - 2 - i]==magicNumber[count-1-i])
+                        {
+                            canGo = true;
+                        }
+                        else
+                        {
+                            canGo = false;
+                            break;
+                        }
+                    }
+
+                    if(canGo)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        count = 0; NextValue = false;
+                    }
+                }             
+                else { count = 0; NextValue = false; }
+            }
+
+            if(!last)resultByteArray.RemoveRange(resultByteArray.Count - magicNumber.Length, magicNumber.Length);
+
+            /*
+            Console.CursorLeft = 0;
+            Console.Write("Progress: " + (binaryReader.BaseStream.Position / binaryReader.BaseStream.Length)*100 +"%");
+            */
+
+            return resultByteArray.ToArray();
         }
     }
 }
