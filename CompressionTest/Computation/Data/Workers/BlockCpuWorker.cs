@@ -14,7 +14,7 @@ namespace CompressionTest.Computation.Data.Workers
         protected int _currentBlock;
         protected int _fileChunks;
         private Compression.Enums.CompressionType _compressionType;
-        protected Compression.Compression compression;
+        protected Compression.Strategy.Compression compression;
 
         private readonly object readLock = new object();
         private readonly object writeLock = new object();
@@ -29,7 +29,7 @@ namespace CompressionTest.Computation.Data.Workers
 
         public BlockCpuWorker(IO.DataProviders.BlockDataProvider input,
             IO.DataProviders.BlockDataProvider output,
-            Compression.Compression compression,
+            Compression.Strategy.Compression compression,
             Compression.Enums.CompressionType compressionType,
             int currentCore)
         {
@@ -69,7 +69,7 @@ namespace CompressionTest.Computation.Data.Workers
 
         public void Initialize(IO.DataProviders.BlockDataProvider input,
             IO.DataProviders.BlockDataProvider output,
-            Compression.Compression compression,
+            Compression.Strategy.Compression compression,
             Compression.Enums.CompressionType compressionType,
             int currentCore)
         {
@@ -90,7 +90,7 @@ namespace CompressionTest.Computation.Data.Workers
 
         public void Processing(object param)
         {
-            Compression.Compression compression = (Compression.Compression)param;
+            Compression.Strategy.Compression compression = (Compression.Strategy.Compression)param;
             Compression.Enums.CompressionType type;
             int maxSize = 0;
 

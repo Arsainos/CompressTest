@@ -15,7 +15,7 @@ namespace CompressionTest.Computation.Data.Workers
 
         protected IO.DataProviders.BlockDataProvider input;
         protected IO.DataProviders.BlockDataProvider Output;
-        protected Compression.Compression compression;
+        protected Compression.Strategy.Compression compression;
 
         protected Queue<Data.ByteBlock> readQueue;
         protected Queue<Data.ByteBlock> writeQueue;
@@ -29,7 +29,7 @@ namespace CompressionTest.Computation.Data.Workers
 
         public BlockDiskWorker(IO.DataProviders.BlockDataProvider input,
             IO.DataProviders.BlockDataProvider Output,
-            Compression.Compression compression,
+            Compression.Strategy.Compression compression,
             Compression.Enums.CompressionType compressionType)
         {
             initialize(input, Output, compression, compressionType);
@@ -37,7 +37,7 @@ namespace CompressionTest.Computation.Data.Workers
 
         void initialize(IO.DataProviders.BlockDataProvider input,
             IO.DataProviders.BlockDataProvider Output,
-            Compression.Compression compression,
+            Compression.Strategy.Compression compression,
             Compression.Enums.CompressionType compressionType)
         {
             Console.WriteLine("\n\rНачинаю обработку\n\r");
@@ -206,13 +206,13 @@ namespace CompressionTest.Computation.Data.Workers
 
         class Cpu : DiskWorker
         {
-            private Compression.Compression compression;
+            private Compression.Strategy.Compression compression;
             private Compression.Enums.CompressionType CompressionType;
             private int chunks;
 
             public Cpu(object readLock, object writeLock,
                 Queue<ByteBlock> writeQueue, Queue<ByteBlock> readQueue,
-                Compression.Compression compression,
+                Compression.Strategy.Compression compression,
                 int maxChunks,
                 Compression.Enums.CompressionType compressionType) : base(readLock, writeLock, writeQueue, readQueue)
             {
