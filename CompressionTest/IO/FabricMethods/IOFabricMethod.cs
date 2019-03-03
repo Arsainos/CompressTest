@@ -6,6 +6,10 @@ using CompressionTest.IO.Enums;
 
 namespace CompressionTest.IO.FabricMethods
 {
+    /// <summary>
+    /// Generic fabric method for generating high level provider with specific source
+    /// </summary>
+    /// <typeparam name="T">Concrete provider type - Block, Stream and etc,</typeparam>
     static class IOFabricMethod<T>
     {
         public static T Create(DataSource source, DirectionType direction, string[] payload)

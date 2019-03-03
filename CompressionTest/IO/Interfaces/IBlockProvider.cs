@@ -5,6 +5,9 @@ using System.Text;
 
 namespace CompressionTest.IO.Interfaces
 {
+    /// <summary>
+    /// Interface for block strategy
+    /// </summary>
     interface IBlockProvider
     {
         byte[] ReadAll(out bool last);

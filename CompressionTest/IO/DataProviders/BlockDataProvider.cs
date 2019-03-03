@@ -6,8 +6,17 @@ using CompressionTest.IO.Interfaces;
 
 namespace CompressionTest.IO.DataProviders
 {
+    /// <summary>
+    /// High level data provider for IO operations
+    /// </summary>
+    /// <remarks>
+    /// Using strategy for more easier way to create the programm architercture. Without waiting for the specific readlization of source.
+    /// </remarks>
     class BlockDataProvider : IO.Data.AbstractClasses.AbstractDataProvider, IBlockProvider, IDisposable
     {
+        /// <summary>
+        /// Strategy interface place holder
+        /// </summary>
         public IBlockProvider _blockProvider { private get; set; }
 
         public BlockDataProvider(object underlayingStructure) : base(underlayingStructure)
@@ -16,11 +25,18 @@ namespace CompressionTest.IO.DataProviders
             _blockProvider = (IBlockProvider)underlayingStructure;
         }
 
+        /// <summary>
+        /// Override the abstract class dispose pattern, make this for using struct
+        /// </summary>
         public override void Dispose()
         {
             base.Dispose();
         }
-
+        /// <summary>
+        /// Validate the incoming underlaying structure
+        /// </summary>
+        /// <typeparam name="T">Interface specific</typeparam>
+        /// <param name="uderlayingStructure">Incoming strategy realization class</param>
         public override void objectValidation<T>(object uderlayingStructure)
         {
             base.objectValidation<T>(uderlayingStructure);

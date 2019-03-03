@@ -5,6 +5,9 @@ using System.Text;
 
 namespace CompressionTest.IO.Data.AbstractClasses
 {
+    /// <summary>
+    /// Abstract class for data sources
+    /// </summary>
     abstract class AbstractDataSource : IDisposable
     {
         public AbstractDataSource(object[] payload)
