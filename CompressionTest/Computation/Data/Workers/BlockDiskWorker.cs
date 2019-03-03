@@ -252,7 +252,10 @@ namespace CompressionTest.Computation.Data.Workers
                             readQueue.Enqueue(new ByteBlock(NextSlice, chunkNumber, last));
                             chunkNumber++;
 
-                            if (last) canRead = false;
+                            if (last)
+                            {
+                                canRead = false;
+                            }
                         }
                         else
                         {
