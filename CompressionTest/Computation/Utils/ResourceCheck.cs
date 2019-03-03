@@ -8,8 +8,15 @@ using System.IO;
 
 namespace CompressionTest.Computation.Utils
 {
+    /// <summary>
+    /// Special class for getting info about current system
+    /// </summary>
     static class ResourceCheck
     {
+        /// <summary>
+        /// Get Info about free ram size
+        /// </summary>
+        /// <returns>free ram size</returns>
         public static double checkRamSize()
         {
             double result = 0;
@@ -23,7 +30,10 @@ namespace CompressionTest.Computation.Utils
 
             return result;
         }
-
+        /// <summary>
+        /// Get info about idle time of cores
+        /// </summary>
+        /// <returns>Idle times of cores</returns>
         public static double[] checkCPUUsage()
         {
             int NumberOfLogicalCores = 0;
@@ -53,7 +63,11 @@ namespace CompressionTest.Computation.Utils
 
             return CPUsIdles;
         }
-
+        /// <summary>
+        /// Get info about disk idle
+        /// </summary>
+        /// <param name="diskName"></param>
+        /// <returns>disk idle</returns>
         public static double checkDiskUsage(string diskName)
         {
             double result = 0;

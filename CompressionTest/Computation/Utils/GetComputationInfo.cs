@@ -5,12 +5,14 @@ using System.Text;
 
 namespace CompressionTest.Computation.Utils
 {
+    /// <summary>
+    /// Special classes for getting some computation info
+    /// </summary>
     static class GetComputationInfo
     {
         public static double GetMaximumChunks(double chunkSize)
         {
-            double RamFreeSize = Computation.Utils.ResourceCheck.checkRamSize() * 0.9; // Чтобы не всю оперативную память занять,
-                                                                                       // оставим 10% для жизни на Марсе
+            double RamFreeSize = Computation.Utils.ResourceCheck.checkRamSize() * 0.9; 
             return Math.Ceiling(RamFreeSize / chunkSize);
         }
 
