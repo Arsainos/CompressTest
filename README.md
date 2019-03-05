@@ -1,4 +1,4 @@
-# Multithreading compressing/decompressing CLI program.
+# Multithreading compressing/decompressing CLI program
 
 This program made for compressing and decompressing data from different source, with diffrenet algorithms and by using different implementations of processing the data.
 
@@ -9,7 +9,7 @@ I made this program with different components. So every of it can be called with
 * Compress - Provides high level classes for compress/decompress.
 * Computation - Provides implementation of working with different type of system component for the compression.
 
-## IO component.
+## IO component
 
 This component provides different aproaches to read and write data from sources. it is using the generic fabric method for getting high level class with strategy pattern. So we can specify the concrete implementation of strategy much more later.
 
@@ -28,14 +28,14 @@ We can specify the needed provider by factory method:
 OFabricMethod<BlockDataProvider>.Create((Enum.DataSource) source, (Enum.DirectionType) direction, string[] payload)
 ```
 
-## Compression component.
+## Compression component
 
 This component provides strategy pattern for compression/decompression implementaions to the algorithms. We can call the high level compression to start implementing our architecure, and then the algorithm will be ready just push it to the high level class by strategy pattern.
 
 ### Algorithms:
 * GZip
 
-## Computation component.
+## Computation component
 
 This component provides different implementations of processing data (how we proccess it). For example i have a disk and cpu usage implementation for the byte block processing.
 
@@ -53,7 +53,7 @@ In this component have an utils class. There you can find and implement or use t
 * BlockDiskWorker - Use the disk to process the data
 
 
-## CLI interface.
+## CLI interface
 
 This program have CLI command processing. Here the info about commands:
 
@@ -75,5 +75,10 @@ Thre result will be:
 > Compress/Decompress [Algorithm] - Avaliable compression algorithms:
 > Gzip
 > Deflate
+
+## Run from Comand Line
+
+Also you can run this programm just with the CMD input command:
+> GZipTest.exe compress/decompress [input file path] [output file path]
 
 
