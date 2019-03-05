@@ -90,7 +90,7 @@ namespace CompressionTest.IO.Data.Block
             base.InputDirectionValidation(payload);
             if(payload.Length < 1)
             {
-                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
+                throw new Exception(String.Format("Initialize parameters is not passed to the constructor - {0}", this.GetType()));
             }
         }
         /// <summary>
@@ -102,7 +102,7 @@ namespace CompressionTest.IO.Data.Block
             base.OutputDirectionValidation(payload);
             if(payload.Length < 1)
             {
-                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
+                throw new Exception(String.Format("Initialize parameters is not passed to the constructor - {0}", this.GetType()));
             }
         }
         /// <summary>
@@ -114,7 +114,7 @@ namespace CompressionTest.IO.Data.Block
             base.InOutDirectionValidation(payload);
             if(payload.Length < 2)
             {
-                throw new Exception(String.Format("Не переданы данные для инициализации коснструктора в класс - {0}", this.GetType()));
+                throw new Exception(String.Format("Initialize parameters is not passed to the constructor - {0}", this.GetType()));
             }
         }
 
@@ -190,7 +190,7 @@ namespace CompressionTest.IO.Data.Block
             }
             else
             {
-                throw new Exception("Не удалось найти файл для чтения по заданному пути!");
+                throw new Exception("Can't locate input file at this path!");
             }
         }
 
