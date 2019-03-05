@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -124,12 +125,16 @@ namespace CompressionTest.Computation.Data.Workers
         /// </summary>
         public void Start()
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             for(int i=0; i< _threads.Length;i++)
             {
                 _threads[i].Start();
             }
             waitHandler.WaitOne();
+            stopwatch.Stop();
             Console.WriteLine("\n\r[Output]: Computation completed!\n\r");
+            Console.WriteLine("[Output]: The computation took about {0}sec\n\r", stopwatch.Elapsed.TotalSeconds);
         }
 
         /// <summary>
@@ -144,7 +149,13 @@ namespace CompressionTest.Computation.Data.Workers
             this.Output = null;
             this.compression = null;
             this.readQueue = null;
-            this.writeQueue = null;           
+            this.writeQueue = null;
+
+            foreach (var t in this._threads)
+            {
+                t.Abort();
+            }
+            this._threads = null;
         }
 
         //Just redirect to the Stop, make this just for the using calls
@@ -227,41 +238,50 @@ namespace CompressionTest.Computation.Data.Workers
                
                 while (canRead)
                 {
+                    bool canSend = false;
                     lock (readLock)
                     {
                         if (readQueue.Count < queueCapacity)
                         {
-                            byte[] NextSlice = null;
-                            bool last = false;
-                            switch (CompressionType)
-                            {
-                                //For compression we can read const size of chunks
-                                case Compression.Enums.CompressionType.Compress:
-                                    NextSlice = readProvider.ReadNext(out last);
-                                    break;
-                                //For decompression we need to read specific chunks of byte,
-                                //so we detect how to read them by header specification
-                                case Compression.Enums.CompressionType.Decompress:
-                                    NextSlice = readProvider
-                                                    .SpecificRead(Compression.Utils.MagicNumbersAlgorithmDictionary
-                                                    .AlgorithmMagicNumbers[algorithms].completeMask,out last);
-                                    break;
-                            }
-
-                            //send data
-                            readQueue.Enqueue(new ByteBlock(NextSlice, chunkNumber, last));
-                            chunkNumber++;
-
-                            if (last)
-                            {
-                                canRead = false;
-                            }
-                        }
-                        else
-                        {
-                            Thread.Sleep(1);
+                            canSend = true;
                         }
                     }
+                    if(canSend)
+                    {
+                        byte[] NextSlice = null;
+                        bool last = false;
+                        switch (CompressionType)
+                        {
+                            //For compression we can read const size of chunks
+                            case Compression.Enums.CompressionType.Compress:
+                                NextSlice = readProvider.ReadNext(out last);
+                                break;
+                            //For decompression we need to read specific chunks of byte,
+                            //so we detect how to read them by header specification
+                            case Compression.Enums.CompressionType.Decompress:
+                                NextSlice = readProvider
+                                                .SpecificRead(Compression.Utils.MagicNumbersAlgorithmDictionary
+                                                .AlgorithmMagicNumbers[algorithms].completeMask, out last);
+                                break;
+                        }
+
+                        //send data
+                        lock (readLock)
+                        {
+                            readQueue.Enqueue(new ByteBlock(NextSlice, chunkNumber, last));
+                        }
+                        chunkNumber++;
+
+                        if (last)
+                        {
+                            canRead = false;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(1);
+                    }
+                    
                 }
                 Console.WriteLine("[Output]: Data read completed!");
             }
@@ -271,20 +291,26 @@ namespace CompressionTest.Computation.Data.Workers
                 bool last = false;
                 while(!last)
                 {
-                    lock(writeLock)
+                    ByteBlock block = null;
+                    bool canWrite = false;
+                    lock (writeLock)
                     {
-                        if(writeQueue.Count > 0)
+                        if (writeQueue.Count > 0)
                         {
                             //Get data and write it the destination
-                            ByteBlock block = writeQueue.Dequeue();
+                            block = writeQueue.Dequeue();
                             last = block.lastSubset;
-                            writeProvider.WriteNext(block.Slice);
-                        }
-                        else
-                        {
-                            Thread.Sleep(1);
+                            canWrite = true;
                         }
                     }
+                    if(canWrite)
+                    {
+                        writeProvider.WriteNext(block.Slice);
+                    }
+                    else
+                    {
+                        Thread.Sleep(1);
+                    }                   
                 }
                 Console.WriteLine("[Output]: Data write completed!");
                 //Call handler about completion

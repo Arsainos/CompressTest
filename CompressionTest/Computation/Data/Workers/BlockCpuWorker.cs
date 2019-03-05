@@ -96,12 +96,13 @@ namespace CompressionTest.Computation.Data.Workers
             Process process = Process.GetCurrentProcess();
             //and also offset of how much threads is working in it
             int offset = process.Threads.Count;
-
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             //We are starting out threads with parameter of compression, 
             //clone made hear for race for elements
             //cause we don't need to use similar object of high level compression
             //we just give every thread his own compression object to work with
-            for(int i=0;i<_threads.Length;i++)
+            for (int i=0;i<_threads.Length;i++)
             {
                 _threads[i].Start(compression.Clone());
             }
@@ -115,7 +116,9 @@ namespace CompressionTest.Computation.Data.Workers
             }
             //wait for threads completion
             waitHandle.WaitOne();
-            Console.WriteLine("[Output]: Computation proccess is finished!");
+            stopwatch.Stop();
+            Console.WriteLine("\n\r[Output]: Computation completed!\n\r");
+            Console.WriteLine("[Output]: The computation took about {0}sec\n\r", stopwatch.Elapsed.TotalSeconds);
         }
 
         /// <summary>
@@ -126,6 +129,11 @@ namespace CompressionTest.Computation.Data.Workers
             this._input = null;
             this._output = null;
             this.compression = null;
+            foreach(var t in this._threads)
+            {
+                t.Abort();
+            }
+            this._threads = null;
         }
 
         /// <summary>
