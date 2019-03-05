@@ -58,7 +58,7 @@ namespace CompressionTest.Utils.CLI
         const string compress = "\n\rStarting the compression\n\r";
         const string decompress = "\n\rStarting the decompression\n\r";
         //Example string
-        const string example = @"Compress -a Gzip -i File -ip C:\1.txt;1024 -o File -op D:\1.txt\n\r";
+        const string example = @"Compress -a [Gzip] -i [File] -ip [C:\1.txt;1024] -o [File] -op [D:\1.txt\n\r]";
 
         private static readonly List<string> CMDs = new List<string>() { "EXIT","INFO","Compress","Decompress","TEST","Example" };
         private static readonly List<string> InfoCMDs = new List<string>() { "-a", "-provider", "-i", "-ip" ,"-o","-op"};
@@ -298,12 +298,12 @@ namespace CompressionTest.Utils.CLI
         /// <returns>array of options for given parameter</returns>
         static string[] GetParamsFromCMDString(string input,string parameter)
         {
-            Regex reg = new Regex(String.Format(@"(-{0}\s([\w+\d+;:\\\.\-]*))", parameter), RegexOptions.IgnoreCase);
+            Regex reg = new Regex(String.Format(@"-{0}\s\[(.*?)\]", parameter), RegexOptions.IgnoreCase);
             var matches = reg.Matches(input);
 
             if(matches.Count > 0)
             {
-                return matches[0].Groups[2].Value.Split(';');
+                return matches[0].Groups[1].Value.Split(';');
             }
             else
             {
